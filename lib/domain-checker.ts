@@ -39,7 +39,6 @@ export async function checkDomainAvailability(
       }),
     ]);
 
-    // More detailed result handling
     if (whoisResult.status === "rejected") {
       throw whoisResult.reason;
     }
@@ -48,28 +47,60 @@ export async function checkDomainAvailability(
     const webServerStatus =
       hasWebServer.status === "fulfilled" ? hasWebServer.value : false;
 
-    // WHOIS check
-    const isAvailableWhois =
-      !whoisData.registrar &&
-      !whoisData.domainName &&
-      !whoisData["Registry Domain ID"] &&
-      !(
-        whoisData.text && whoisData.text.toLowerCase().includes("registered")
-      ) &&
-      !(
-        Array.isArray(whoisData.status) &&
-        whoisData.status.some(
-          (s: string) =>
-            s.toLowerCase().includes("registered") ||
-            s.toLowerCase().includes("active")
-        )
-      );
+    // Logs pour le débogage -> Debug logs
+    console.log("[WHOIS] Data:", {
+      registrar: whoisData.registrar,
+      domainName: whoisData.domainName,
+      registryDomainId: whoisData["Registry Domain ID"],
+      status: whoisData.status,
+      text: whoisData.text,
+    });
 
-    // A domain is considered in use if either WHOIS indicates it's registered
-    // or it has an active web server
+    // WHOIS check avec raisons détaillées -> Detailed WHOIS check
+    const isAvailableWhois =
+      // Si tous les champs importants sont undefined ou vides -> If all important fields are undefined or empty
+      (!whoisData.registrar && !whoisData.text && !whoisData.status) ||
+      // Ou si le seul champ non-vide est domainName -> Or if only domainName field is present
+      (whoisData.domainName &&
+        !whoisData.registrar &&
+        !whoisData.text &&
+        !whoisData.status &&
+        !whoisData["Registry Domain ID"]);
+
+    console.log("[Check] Results:", {
+      isAvailableWhois,
+      webServerStatus,
+      whoisDataEmpty:
+        !whoisData.registrar && !whoisData.text && !whoisData.status,
+      onlyDomainName:
+        whoisData.domainName &&
+        !whoisData.registrar &&
+        !whoisData.text &&
+        !whoisData.status &&
+        !whoisData["Registry Domain ID"],
+    });
+
+    // Déterminer la raison de l'indisponibilité -> Determine unavailability reason
+    let unavailabilityReason = undefined;
+    if (!isAvailableWhois) {
+      if (whoisData.registrar) {
+        unavailabilityReason = `Registered with ${whoisData.registrar}`;
+      } else if (whoisData.status && whoisData.status.length > 0) {
+        unavailabilityReason = `Status: ${whoisData.status.join(", ")}`;
+      } else if (webServerStatus) {
+        unavailabilityReason = "Active website detected";
+      } else if (whoisData.text) {
+        unavailabilityReason = "WHOIS information found";
+      } else if (whoisData["Registry Domain ID"]) {
+        unavailabilityReason = "Registry ID found";
+      } else {
+        unavailabilityReason = "Unknown reason";
+      }
+    }
+
     const isAvailable = isAvailableWhois && !webServerStatus;
 
-    return {
+    const result = {
       domain,
       isAvailable,
       registrar: whoisData.registrar || undefined,
@@ -77,9 +108,16 @@ export async function checkDomainAvailability(
       expirationDate: whoisData.expirationDate || undefined,
       hasWebServer: webServerStatus,
       checkedAt: new Date().toISOString(),
+      status: whoisData.status,
+      whoisText: whoisData.text,
+      unavailabilityReason,
       error: undefined,
     };
+
+    console.log("[Domain Check] Final result:", result);
+    return result;
   } catch (error) {
+    console.error("[Domain Check] Error:", error);
     const domainError: DomainError = {
       code: "UNKNOWN_ERROR",
       message: error instanceof Error ? error.message : "Unknown error",

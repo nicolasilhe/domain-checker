@@ -7,4 +7,7 @@ export type DomainCheckResult = {
   hasWebServer: boolean;
   error?: string;
   checkedAt: string;
+  status?: string[];
+  whoisText?: string;
+  unavailabilityReason?: string;
 };

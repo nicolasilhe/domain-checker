@@ -106,6 +106,15 @@ export const DomainResult = ({ result }: { result: DomainCheckResult }) => {
                   value="Active website"
                 />
               )}
+              {!result.error &&
+                !result.isAvailable &&
+                result.unavailabilityReason && (
+                  <DetailRow
+                    icon={CrossCircledIcon}
+                    label="Statut"
+                    value={result.unavailabilityReason}
+                  />
+                )}
             </>
           )}
         </div>

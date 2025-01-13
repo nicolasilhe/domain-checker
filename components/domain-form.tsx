@@ -30,13 +30,13 @@ export const DomainForm = ({ onResultChange }: Props) => {
     if (domain.trim()) {
       try {
         const result = await checkDomain(domain.trim());
-        console.log("Résultat obtenu:", result); // Debug
+        console.log("Result obtained:", result); // Debug
         if (result && onResultChange) {
-          console.log("Appel de onResultChange avec:", result); // Debug
+          console.log("Calling onResultChange with:", result); // Debug
           onResultChange(result);
         }
       } catch (error) {
-        console.error("Erreur lors de la vérification:", error);
+        console.error("Error during check:", error);
       }
     }
   };
@@ -46,7 +46,7 @@ export const DomainForm = ({ onResultChange }: Props) => {
       <form
         onSubmit={handleSubmit}
         role="search"
-        aria-label="Vérification de domaine"
+        aria-label="Domain check"
         className="w-full"
       >
         <div className="flex flex-col sm:flex-row gap-2">
@@ -55,7 +55,7 @@ export const DomainForm = ({ onResultChange }: Props) => {
               type="text"
               value={domain}
               onChange={(e) => setDomain(e.target.value)}
-              placeholder="Entrez un nom de domaine"
+              placeholder="Enter a domain name"
               disabled={isLoading}
               aria-invalid={error ? "true" : "false"}
               aria-describedby={error ? "domain-error" : undefined}
@@ -80,10 +80,10 @@ export const DomainForm = ({ onResultChange }: Props) => {
             {isLoading ? (
               <>
                 <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />
-                Vérification...
+                Checking...
               </>
             ) : (
-              "Vérifier"
+              "Check"
             )}
           </Button>
         </div>

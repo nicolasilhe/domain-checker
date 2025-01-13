@@ -27,7 +27,8 @@ export const useDomainChecker = () => {
         const data = await response.json();
 
         if (!response.ok) {
-          throw new Error(data.error || "Erreur lors de la vérification");
+          console.error("Error during check:", error);
+          throw new Error(data.error || "Error during check");
         }
 
         const resultWithDate = {
@@ -39,7 +40,7 @@ export const useDomainChecker = () => {
         return resultWithDate;
       } catch (error) {
         const errorMessage =
-          error instanceof Error ? error.message : "Erreur inconnue";
+          error instanceof Error ? error.message : "Unknown error";
         setError(errorMessage);
         setResult(null);
         return null;
@@ -50,7 +51,7 @@ export const useDomainChecker = () => {
     [searchParams]
   );
 
-  // Vérifier le domaine en query param au chargement
+  // Check domain from query param on load
   useEffect(() => {
     const domain = searchParams.get("domain");
     if (domain) {

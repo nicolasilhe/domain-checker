@@ -83,13 +83,13 @@ const HistoryItem = ({ result }: HistoryItemProps) => {
     try {
       await navigator.clipboard.writeText(url);
       toast({
-        title: "Lien copié !",
-        description: "Le lien a été copié dans le presse-papier.",
+        title: "Link copied!",
+        description: "The link has been copied to clipboard.",
       });
     } catch {
       toast({
-        title: "Erreur",
-        description: "Impossible de copier le lien.",
+        title: "Error",
+        description: "Could not copy the link.",
         variant: "destructive",
       });
     }
@@ -136,7 +136,7 @@ const HistoryItem = ({ result }: HistoryItemProps) => {
                       </Button>
                     </TooltipTrigger>
                     <TooltipContent>
-                      <p>Copier le lien</p>
+                      <p>Copy link</p>
                     </TooltipContent>
                   </Tooltip>
 
@@ -153,7 +153,7 @@ const HistoryItem = ({ result }: HistoryItemProps) => {
                       </a>
                     </TooltipTrigger>
                     <TooltipContent>
-                      <p>Visiter le site</p>
+                      <p>Visit website</p>
                     </TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
@@ -174,7 +174,7 @@ const HistoryItem = ({ result }: HistoryItemProps) => {
             <CardContent className="p-4 text-sm space-y-3">
               <DetailRow
                 icon={GlobeIcon}
-                label="Domaine"
+                label="Domain"
                 value={`https://${result.domain}`}
                 href={`https://${result.domain}`}
               />
@@ -182,7 +182,7 @@ const HistoryItem = ({ result }: HistoryItemProps) => {
               {result.error && (
                 <DetailRow
                   icon={CrossCircledIcon}
-                  label="Erreur"
+                  label="Error"
                   value={result.error}
                   error
                 />
@@ -200,14 +200,14 @@ const HistoryItem = ({ result }: HistoryItemProps) => {
                   {result.creationDate && (
                     <DetailRow
                       icon={CalendarIcon}
-                      label="Créé le"
+                      label="Created on"
                       value={new Date(result.creationDate).toLocaleDateString()}
                     />
                   )}
                   {result.expirationDate && (
                     <DetailRow
                       icon={CalendarIcon}
-                      label="Expire le"
+                      label="Expires on"
                       value={new Date(
                         result.expirationDate
                       ).toLocaleDateString()}
@@ -216,8 +216,8 @@ const HistoryItem = ({ result }: HistoryItemProps) => {
                   {result.hasWebServer && (
                     <DetailRow
                       icon={GlobeIcon}
-                      label="Statut"
-                      value="Site web actif"
+                      label="Status"
+                      value="Active website"
                     />
                   )}
                 </>
@@ -237,10 +237,9 @@ export const DomainHistory = ({ history, onClear, onSelect }: Props) => {
     <Card>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <div>
-          <CardTitle className="text-lg">Historique des recherches</CardTitle>
+          <CardTitle className="text-lg">Search History</CardTitle>
           <p className="text-sm text-muted-foreground mt-1">
-            {history.length} domaine{history.length > 1 ? "s" : ""} vérifié
-            {history.length > 1 ? "s" : ""}
+            {history.length} domain{history.length > 1 ? "s" : ""} checked
           </p>
         </div>
         <Button
@@ -250,7 +249,7 @@ export const DomainHistory = ({ history, onClear, onSelect }: Props) => {
           className="text-destructive hover:text-destructive/90 hover:bg-destructive/10"
         >
           <TrashIcon className="h-4 w-4 mr-2" />
-          Effacer
+          Clear
         </Button>
       </CardHeader>
       <CardContent className="pt-0 space-y-2">

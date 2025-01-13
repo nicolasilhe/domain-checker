@@ -25,21 +25,21 @@ export type DomainError = {
 export async function checkDomainAvailability(
   domain: string
 ): Promise<DomainCheckResult> {
-  console.log(`[Domain Check] Vérification de ${domain}`);
+  console.log(`[Domain Check] Checking ${domain}`);
 
   try {
     const [whoisResult, hasWebServer] = await Promise.allSettled([
       whois(domain).catch((error: Error) => {
-        console.error("[WHOIS] Erreur:", error);
+        console.error("[WHOIS] Error:", error);
         throw { code: "WHOIS_ERROR" as const, message: error.message };
       }),
       checkHttpStatus(domain).catch((error) => {
-        console.error("[HTTP] Erreur:", error);
+        console.error("[HTTP] Error:", error);
         return false;
       }),
     ]);
 
-    // Gestion plus fine des résultats
+    // More detailed result handling
     if (whoisResult.status === "rejected") {
       throw whoisResult.reason;
     }
@@ -48,7 +48,7 @@ export async function checkDomainAvailability(
     const webServerStatus =
       hasWebServer.status === "fulfilled" ? hasWebServer.value : false;
 
-    // Vérification WHOIS
+    // WHOIS check
     const isAvailableWhois =
       !whoisData.registrar &&
       !whoisData.domainName &&
@@ -65,8 +65,8 @@ export async function checkDomainAvailability(
         )
       );
 
-    // Un domaine est considéré comme utilisé si soit le WHOIS indique qu'il est enregistré,
-    // soit il a un serveur web actif
+    // A domain is considered in use if either WHOIS indicates it's registered
+    // or it has an active web server
     const isAvailable = isAvailableWhois && !webServerStatus;
 
     return {
@@ -82,7 +82,7 @@ export async function checkDomainAvailability(
   } catch (error) {
     const domainError: DomainError = {
       code: "UNKNOWN_ERROR",
-      message: error instanceof Error ? error.message : "Erreur inconnue",
+      message: error instanceof Error ? error.message : "Unknown error",
     };
     throw domainError;
   }

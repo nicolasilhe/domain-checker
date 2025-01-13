@@ -9,14 +9,14 @@ import { Suspense } from "react";
 export default function Home() {
   const { history, clearHistory, addToHistory } = useDomainHistory();
 
-  console.log("Historique actuel:", history); // Debug
+  console.log("Current history:", history); // Debug
 
   return (
     <div className="space-y-6">
-      <Suspense fallback={<div>Chargement...</div>}>
+      <Suspense fallback={<div>Loading...</div>}>
         <Card>
           <CardHeader>
-            <CardTitle>Vérification de domaine</CardTitle>
+            <CardTitle>Domain Check</CardTitle>
           </CardHeader>
           <CardContent>
             <DomainForm onResultChange={addToHistory} />

@@ -1,7 +1,7 @@
 export const DOMAIN_REGEX = {
-  // Support des IDN et des nouveaux TLD
+  // Support for IDN and new TLDs
   STANDARD: /^[a-zA-Z0-9][a-zA-Z0-9-]{1,61}[a-zA-Z0-9]\.[a-zA-Z]{2,}$/,
-  // Support des sous-domaines
+  // Support for subdomains
   WITH_SUBDOMAINS:
     /^(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}$/,
 };
@@ -10,15 +10,15 @@ export const validateDomain = (
   domain: string
 ): { isValid: boolean; error?: string } => {
   if (!domain) {
-    return { isValid: false, error: "Le domaine est requis" };
+    return { isValid: false, error: "Domain is required" };
   }
 
   if (domain.length > 253) {
-    return { isValid: false, error: "Le domaine est trop long" };
+    return { isValid: false, error: "Domain is too long" };
   }
 
   if (!DOMAIN_REGEX.STANDARD.test(domain)) {
-    return { isValid: false, error: "Format de domaine invalide" };
+    return { isValid: false, error: "Invalid domain format" };
   }
 
   return { isValid: true };

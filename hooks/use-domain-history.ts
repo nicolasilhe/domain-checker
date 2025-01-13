@@ -8,7 +8,7 @@ export const useDomainHistory = () => {
   const [history, setHistory] = useState<DomainCheckResult[]>([]);
 
   useEffect(() => {
-    // Charger l'historique au montage du composant
+    // Load history when component mounts
     const savedHistory = localStorage.getItem(STORAGE_KEY);
     if (savedHistory) {
       setHistory(JSON.parse(savedHistory));
@@ -16,7 +16,7 @@ export const useDomainHistory = () => {
   }, []);
 
   const addToHistory = useCallback((result: DomainCheckResult) => {
-    console.log("Ajout à l'historique:", result); // Debug
+    console.log("Adding to history:", result); // Debug
     setHistory((currentHistory) => {
       const newHistory = [
         result,
@@ -27,7 +27,7 @@ export const useDomainHistory = () => {
       try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(newHistory));
       } catch (error) {
-        console.error("Erreur lors de la sauvegarde dans localStorage:", error);
+        console.error("Error saving to localStorage:", error);
       }
 
       return newHistory;

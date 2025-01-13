@@ -3,7 +3,7 @@ export const Footer = () => {
     <footer className="border-t">
       <div className="container flex h-14 items-center justify-center">
         <p className="text-sm text-muted-foreground text-center">
-          Construit avec{" "}
+          Built with{" "}
           <a
             href="https://nextjs.org"
             target="_blank"
@@ -12,7 +12,7 @@ export const Footer = () => {
           >
             Next.js
           </a>
-          . Le code source est disponible sur{" "}
+          . Source code available on{" "}
           <a
             href="https://github.com/nicolasilhe/domain-checker"
             target="_blank"

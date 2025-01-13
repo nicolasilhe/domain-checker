@@ -63,14 +63,14 @@ export const DomainResult = ({ result }: { result: DomainCheckResult }) => {
         <div className="pt-3 space-y-2 text-sm">
           <DetailRow
             icon={GlobeIcon}
-            label="Domaine"
+            label="Domain"
             value={`https://${result.domain}`}
             href={`https://${result.domain}`}
           />
           {result.error && (
             <DetailRow
               icon={CrossCircledIcon}
-              label="Erreur"
+              label="Error"
               value={result.error}
               error
             />
@@ -88,22 +88,22 @@ export const DomainResult = ({ result }: { result: DomainCheckResult }) => {
               {result.creationDate && (
                 <DetailRow
                   icon={CalendarIcon}
-                  label="Créé le"
+                  label="Created on"
                   value={new Date(result.creationDate).toLocaleDateString()}
                 />
               )}
               {result.expirationDate && (
                 <DetailRow
                   icon={CalendarIcon}
-                  label="Expire le"
+                  label="Expires on"
                   value={new Date(result.expirationDate).toLocaleDateString()}
                 />
               )}
               {result.hasWebServer && (
                 <DetailRow
                   icon={GlobeIcon}
-                  label="Statut"
-                  value="Site web actif"
+                  label="Status"
+                  value="Active website"
                 />
               )}
             </>

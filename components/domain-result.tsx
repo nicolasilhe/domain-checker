@@ -41,7 +41,7 @@ export const DomainResult = ({ result }: Props) => {
           )}
           {result.expirationDate && (
             <p>
-              Date d'expiration:{" "}
+              Date d&apos;expiration:{" "}
               {new Date(result.expirationDate).toLocaleDateString()}
             </p>
           )}

@@ -62,7 +62,7 @@ const DetailRow = ({
   </p>
 );
 
-const HistoryItem = ({ result, onSelect }: HistoryItemProps) => {
+const HistoryItem = ({ result }: HistoryItemProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const timestamp = new Date().toLocaleDateString(undefined, {
     year: "numeric",
@@ -81,7 +81,7 @@ const HistoryItem = ({ result, onSelect }: HistoryItemProps) => {
     }
     if (result.isAvailable) {
       return {
-        variant: "success" as const,
+        variant: "secondary" as const,
         icon: <CheckCircledIcon className="h-4 w-4 text-green-500" />,
       };
     }

@@ -9,39 +9,56 @@ async function checkHttpStatus(domain: string): Promise<boolean> {
         "User-Agent":
           "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
       },
-      redirect: "manual", // Pour éviter de suivre les redirections
+      redirect: "manual",
     });
-
-    // Si on obtient une réponse (même une erreur HTTP), le domaine est probablement utilisé
     return response.status !== 0;
-  } catch (error) {
-    // Une erreur de connexion suggère que le domaine n'a pas de serveur web actif
+  } catch {
     return false;
   }
 }
 
+export type DomainError = {
+  code: "WHOIS_ERROR" | "HTTP_ERROR" | "INVALID_DOMAIN" | "UNKNOWN_ERROR";
+  message: string;
+};
+
 export async function checkDomainAvailability(
   domain: string
 ): Promise<DomainCheckResult> {
+  console.log(`[Domain Check] Vérification de ${domain}`);
+
   try {
-    // Exécuter les deux vérifications en parallèle
-    const [whoisResult, hasWebServer] = await Promise.all([
-      whois(domain),
-      checkHttpStatus(domain),
+    const [whoisResult, hasWebServer] = await Promise.allSettled([
+      whois(domain).catch((error: Error) => {
+        console.error("[WHOIS] Erreur:", error);
+        throw { code: "WHOIS_ERROR" as const, message: error.message };
+      }),
+      checkHttpStatus(domain).catch((error) => {
+        console.error("[HTTP] Erreur:", error);
+        return false;
+      }),
     ]);
+
+    // Gestion plus fine des résultats
+    if (whoisResult.status === "rejected") {
+      throw whoisResult.reason;
+    }
+
+    const whoisData = whoisResult.value;
+    const webServerStatus =
+      hasWebServer.status === "fulfilled" ? hasWebServer.value : false;
 
     // Vérification WHOIS
     const isAvailableWhois =
-      !whoisResult.registrar &&
-      !whoisResult.domainName &&
-      !whoisResult["Registry Domain ID"] &&
+      !whoisData.registrar &&
+      !whoisData.domainName &&
+      !whoisData["Registry Domain ID"] &&
       !(
-        whoisResult.text &&
-        whoisResult.text.toLowerCase().includes("registered")
+        whoisData.text && whoisData.text.toLowerCase().includes("registered")
       ) &&
       !(
-        whoisResult.status &&
-        whoisResult.status.some(
+        whoisData.status &&
+        whoisData.status.some(
           (s: string) =>
             s.toLowerCase().includes("registered") ||
             s.toLowerCase().includes("active")
@@ -50,39 +67,22 @@ export async function checkDomainAvailability(
 
     // Un domaine est considéré comme utilisé si soit le WHOIS indique qu'il est enregistré,
     // soit il a un serveur web actif
-    const isAvailable = isAvailableWhois && !hasWebServer;
+    const isAvailable = isAvailableWhois && !webServerStatus;
 
     return {
       domain,
       isAvailable,
-      registrar: whoisResult.registrar || undefined,
-      creationDate: whoisResult.creationDate || undefined,
-      expirationDate: whoisResult.expirationDate || undefined,
-      hasWebServer,
+      registrar: whoisData.registrar || undefined,
+      creationDate: whoisData.creationDate || undefined,
+      expirationDate: whoisData.expirationDate || undefined,
+      hasWebServer: webServerStatus,
       error: undefined,
     };
   } catch (error) {
-    if (
-      error instanceof Error &&
-      error.message.toLowerCase().includes("no match")
-    ) {
-      // Vérifier quand même le serveur HTTP dans ce cas
-      const hasWebServer = await checkHttpStatus(domain);
-      return {
-        domain,
-        isAvailable: !hasWebServer, // Disponible seulement si pas de serveur web
-        hasWebServer,
-        error: undefined,
-      };
-    }
-
-    return {
-      domain,
-      isAvailable: false,
-      error:
-        error instanceof Error
-          ? error.message
-          : "Erreur lors de la vérification du domaine",
+    const domainError: DomainError = {
+      code: "UNKNOWN_ERROR",
+      message: error instanceof Error ? error.message : "Erreur inconnue",
     };
+    throw domainError;
   }
 }

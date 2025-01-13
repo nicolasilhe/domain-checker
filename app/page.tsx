@@ -6,28 +6,22 @@ import { useDomainHistory } from "@/hooks/use-domain-history";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Suspense } from "react";
 
-const DomainFormWrapper = () => {
-  const { addToHistory } = useDomainHistory();
-
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Vérification de domaine</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <DomainForm onResultChange={addToHistory} />
-      </CardContent>
-    </Card>
-  );
-};
-
 export default function Home() {
-  const { history, clearHistory } = useDomainHistory();
+  const { history, clearHistory, addToHistory } = useDomainHistory();
+
+  console.log("Historique actuel:", history); // Debug
 
   return (
     <div className="space-y-6">
       <Suspense fallback={<div>Chargement...</div>}>
-        <DomainFormWrapper />
+        <Card>
+          <CardHeader>
+            <CardTitle>Vérification de domaine</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <DomainForm onResultChange={addToHistory} />
+          </CardContent>
+        </Card>
       </Suspense>
 
       <DomainHistory

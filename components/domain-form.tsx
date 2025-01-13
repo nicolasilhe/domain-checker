@@ -28,9 +28,15 @@ export const DomainForm = ({ onResultChange }: Props) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (domain.trim()) {
-      const result = await checkDomain(domain.trim());
-      if (result && onResultChange) {
-        onResultChange(result);
+      try {
+        const result = await checkDomain(domain.trim());
+        console.log("Résultat obtenu:", result); // Debug
+        if (result && onResultChange) {
+          console.log("Appel de onResultChange avec:", result); // Debug
+          onResultChange(result);
+        }
+      } catch (error) {
+        console.error("Erreur lors de la vérification:", error);
       }
     }
   };

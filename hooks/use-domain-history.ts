@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import type { DomainCheckResult } from "@/types/domain";
 
 const STORAGE_KEY = "domain-search-history";
@@ -15,19 +15,24 @@ export const useDomainHistory = () => {
     }
   }, []);
 
-  const addToHistory = (result: DomainCheckResult) => {
+  const addToHistory = useCallback((result: DomainCheckResult) => {
+    console.log("Ajout à l'historique:", result); // Debug
     setHistory((currentHistory) => {
-      // Filtrer les doublons et ajouter le nouveau résultat au début
       const newHistory = [
         result,
         ...currentHistory.filter((item) => item.domain !== result.domain),
       ].slice(0, MAX_HISTORY_ITEMS);
 
       // Sauvegarder dans le localStorage
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(newHistory));
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(newHistory));
+      } catch (error) {
+        console.error("Erreur lors de la sauvegarde dans localStorage:", error);
+      }
+
       return newHistory;
     });
-  };
+  }, []);
 
   const clearHistory = () => {
     localStorage.removeItem(STORAGE_KEY);

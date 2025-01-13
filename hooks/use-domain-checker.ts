@@ -1,5 +1,4 @@
 import { useState, useCallback, useEffect } from "react";
-import { validateDomain } from "@/utils/domain-validation";
 import type { DomainCheckResult } from "@/types/domain";
 import { useSearchParams, useRouter } from "next/navigation";
 
@@ -12,23 +11,15 @@ export const useDomainChecker = () => {
 
   const checkDomain = useCallback(
     async (domain: string) => {
-      if (!domain) return;
+      if (!domain) return null;
 
       setIsLoading(true);
       setError(null);
 
-      const validation = validateDomain(domain);
-      if (!validation.isValid) {
-        setError(validation.error || "Format de domaine invalide");
-        setIsLoading(false);
-        return;
-      }
-
       try {
-        // Mettre à jour l'URL avec le domaine
-        const url = new URL(window.location.href);
-        url.searchParams.set("domain", domain.toLowerCase());
-        router.replace(`?domain=${domain.toLowerCase()}`);
+        const newSearchParams = new URLSearchParams(searchParams);
+        newSearchParams.set("domain", domain.toLowerCase());
+        window.history.replaceState(null, "", `?${newSearchParams.toString()}`);
 
         const response = await fetch(
           `/api/check-domain?domain=${domain.toLowerCase()}`
@@ -46,12 +37,12 @@ export const useDomainChecker = () => {
           error instanceof Error ? error.message : "Erreur inconnue";
         setError(errorMessage);
         setResult(null);
-        throw error;
+        return null;
       } finally {
         setIsLoading(false);
       }
     },
-    [router]
+    [searchParams]
   );
 
   // Vérifier le domaine en query param au chargement

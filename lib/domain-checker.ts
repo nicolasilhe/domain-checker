@@ -57,7 +57,7 @@ export async function checkDomainAvailability(
         whoisData.text && whoisData.text.toLowerCase().includes("registered")
       ) &&
       !(
-        whoisData.status &&
+        Array.isArray(whoisData.status) &&
         whoisData.status.some(
           (s: string) =>
             s.toLowerCase().includes("registered") ||

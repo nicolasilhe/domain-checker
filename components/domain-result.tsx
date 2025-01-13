@@ -57,9 +57,6 @@ export const DomainResult = ({ result }: { result: DomainCheckResult }) => {
           )}
           <div>
             <p className="font-medium text-base">{result.domain}</p>
-            <p className="text-sm text-muted-foreground">
-              {result.isAvailable ? "Disponible" : "Non disponible"}
-            </p>
           </div>
         </div>
 
@@ -70,7 +67,6 @@ export const DomainResult = ({ result }: { result: DomainCheckResult }) => {
             value={`https://${result.domain}`}
             href={`https://${result.domain}`}
           />
-
           {result.error && (
             <DetailRow
               icon={CrossCircledIcon}

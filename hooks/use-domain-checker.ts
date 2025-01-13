@@ -30,8 +30,13 @@ export const useDomainChecker = () => {
           throw new Error(data.error || "Erreur lors de la vérification");
         }
 
-        setResult(data);
-        return data;
+        const resultWithDate = {
+          ...data,
+          checkedAt: new Date().toISOString(),
+        };
+
+        setResult(resultWithDate);
+        return resultWithDate;
       } catch (error) {
         const errorMessage =
           error instanceof Error ? error.message : "Erreur inconnue";

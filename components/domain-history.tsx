@@ -26,6 +26,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
+import { formatDate } from "@/lib/utils";
 
 type Props = {
   history: DomainCheckResult[];
@@ -116,12 +117,12 @@ const HistoryItem = ({ result }: HistoryItemProps) => {
                   <p className="font-medium truncate text-base">
                     {result.domain}
                   </p>
-                  <p className="text-sm text-muted-foreground truncate">
-                    {result.isAvailable ? "Disponible" : "Non disponible"}
-                  </p>
                 </div>
               </div>
               <div className="flex items-center gap-2 shrink-0">
+                <span className="text-sm text-muted-foreground">
+                  {formatDate(result.checkedAt)}
+                </span>
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>

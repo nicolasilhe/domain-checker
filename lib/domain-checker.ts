@@ -76,6 +76,7 @@ export async function checkDomainAvailability(
       creationDate: whoisData.creationDate || undefined,
       expirationDate: whoisData.expirationDate || undefined,
       hasWebServer: webServerStatus,
+      checkedAt: new Date().toISOString(),
       error: undefined,
     };
   } catch (error) {

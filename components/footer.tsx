@@ -14,7 +14,7 @@ export const Footer = () => {
           </a>
           . Le code source est disponible sur{" "}
           <a
-            href="https://github.com/nicolasIhe/whois"
+            href="https://github.com/nicolasilhe/domain-checker"
             target="_blank"
             rel="noreferrer"
             className="font-medium underline underline-offset-4 hover:text-foreground transition-colors"

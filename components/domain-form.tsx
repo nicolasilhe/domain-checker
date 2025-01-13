@@ -1,10 +1,12 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useDomainChecker } from "@/hooks/use-domain-checker";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ReloadIcon } from "@radix-ui/react-icons";
 import { DomainResult } from "./domain-result";
 import type { DomainCheckResult } from "@/types/domain";
+import { cn } from "@/lib/utils";
+import { useSearchParams } from "next/navigation";
 
 type Props = {
   onResultChange?: (result: DomainCheckResult) => void;
@@ -13,6 +15,15 @@ type Props = {
 export const DomainForm = ({ onResultChange }: Props) => {
   const { checkDomain, isLoading, error, result } = useDomainChecker();
   const [domain, setDomain] = useState("");
+  const searchParams = useSearchParams();
+
+  // Initialiser le formulaire avec le domaine en query param
+  useEffect(() => {
+    const queryDomain = searchParams.get("domain");
+    if (queryDomain) {
+      setDomain(queryDomain);
+    }
+  }, [searchParams]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,8 +41,9 @@ export const DomainForm = ({ onResultChange }: Props) => {
         onSubmit={handleSubmit}
         role="search"
         aria-label="Vérification de domaine"
+        className="w-full"
       >
-        <div className="flex gap-2">
+        <div className="flex flex-col sm:flex-row gap-2">
           <div className="relative flex-1">
             <Input
               type="text"
@@ -41,7 +53,7 @@ export const DomainForm = ({ onResultChange }: Props) => {
               disabled={isLoading}
               aria-invalid={error ? "true" : "false"}
               aria-describedby={error ? "domain-error" : undefined}
-              className={error ? "border-red-500" : ""}
+              className={cn("w-full", error ? "border-red-500" : "")}
             />
             {error && (
               <p
@@ -53,7 +65,12 @@ export const DomainForm = ({ onResultChange }: Props) => {
               </p>
             )}
           </div>
-          <Button type="submit" disabled={isLoading} aria-busy={isLoading}>
+          <Button
+            type="submit"
+            disabled={isLoading}
+            aria-busy={isLoading}
+            className="w-full sm:w-auto"
+          >
             {isLoading ? (
               <>
                 <ReloadIcon className="mr-2 h-4 w-4 animate-spin" />

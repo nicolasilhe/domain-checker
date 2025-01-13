@@ -5,11 +5,11 @@ import {
   CrossCircledIcon,
   TrashIcon,
   ChevronDownIcon,
-  ChevronUpIcon,
   GlobeIcon,
   ExternalLinkIcon,
   CalendarIcon,
   PersonIcon,
+  CopyIcon,
 } from "@radix-ui/react-icons";
 import { useState } from "react";
 import {
@@ -17,7 +17,15 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
-import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useToast } from "@/components/ui/use-toast";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { cn } from "@/lib/utils";
 
 type Props = {
   history: DomainCheckResult[];
@@ -64,112 +72,159 @@ const DetailRow = ({
 
 const HistoryItem = ({ result }: HistoryItemProps) => {
   const [isOpen, setIsOpen] = useState(false);
-  const timestamp = new Date().toLocaleDateString(undefined, {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
+  const { toast } = useToast();
 
-  const getStatusDisplay = () => {
-    if (result.error) {
-      return {
-        variant: "outline" as const,
-        icon: <CrossCircledIcon className="h-4 w-4 text-red-500" />,
-      };
+  const handleCopy = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const baseUrl = window.location.origin;
+    const url = `${baseUrl}?domain=${result.domain}`;
+
+    try {
+      await navigator.clipboard.writeText(url);
+      toast({
+        title: "Lien copié !",
+        description: "Le lien a été copié dans le presse-papier.",
+      });
+    } catch {
+      toast({
+        title: "Erreur",
+        description: "Impossible de copier le lien.",
+        variant: "destructive",
+      });
     }
-    if (result.isAvailable) {
-      return {
-        variant: "secondary" as const,
-        icon: <CheckCircledIcon className="h-4 w-4 text-green-500" />,
-      };
-    }
-    return {
-      variant: "outline" as const,
-      icon: <CrossCircledIcon className="h-4 w-4 text-red-500" />,
-    };
   };
-
-  const status = getStatusDisplay();
 
   return (
     <Collapsible open={isOpen} onOpenChange={setIsOpen}>
-      <div className="border rounded-lg hover:bg-gray-50 transition-colors">
-        <CollapsibleTrigger asChild>
-          <div className="p-3 cursor-pointer flex items-center justify-between w-full">
-            <div className="flex items-center gap-3">
-              <Badge
-                variant={status.variant}
-                className="h-6 w-6 p-0.5 flex items-center justify-center"
-              >
-                {status.icon}
-              </Badge>
-              <span className="font-medium">{result.domain}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-gray-500">{timestamp}</span>
-              {isOpen ? (
-                <ChevronUpIcon className="h-4 w-4 text-gray-500" />
-              ) : (
-                <ChevronDownIcon className="h-4 w-4 text-gray-500" />
-              )}
-            </div>
-          </div>
-        </CollapsibleTrigger>
-        <CollapsibleContent>
-          <div className="px-3 pb-3 pt-1 border-t text-sm space-y-2 text-gray-600">
-            <DetailRow
-              icon={GlobeIcon}
-              label="Domaine"
-              value={`https://${result.domain}`}
-              href={`https://${result.domain}`}
-            />
+      <CollapsibleTrigger className="w-full">
+        <Card className="w-full border hover:border-primary/50 transition-colors">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between gap-4">
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="shrink-0">
+                  {result.isAvailable ? (
+                    <div className="h-8 w-8 rounded-full bg-green-50 flex items-center justify-center">
+                      <CheckCircledIcon className="h-5 w-5 text-green-500" />
+                    </div>
+                  ) : (
+                    <div className="h-8 w-8 rounded-full bg-red-50 flex items-center justify-center">
+                      <CrossCircledIcon className="h-5 w-5 text-red-500" />
+                    </div>
+                  )}
+                </div>
+                <div className="min-w-0">
+                  <p className="font-medium truncate text-base">
+                    {result.domain}
+                  </p>
+                  <p className="text-sm text-muted-foreground truncate">
+                    {result.isAvailable ? "Disponible" : "Non disponible"}
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2 shrink-0">
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={handleCopy}
+                        className="h-8 w-8"
+                      >
+                        <CopyIcon className="h-4 w-4" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Copier le lien</p>
+                    </TooltipContent>
+                  </Tooltip>
 
-            {result.error && (
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <a
+                        href={`https://${result.domain}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={(e) => e.stopPropagation()}
+                        className="inline-flex h-8 w-8 items-center justify-center rounded-md hover:bg-muted"
+                      >
+                        <ExternalLinkIcon className="h-4 w-4" />
+                      </a>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Visiter le site</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+                <ChevronDownIcon
+                  className={cn(
+                    "h-4 w-4 text-muted-foreground transition-transform duration-200",
+                    isOpen && "transform rotate-180"
+                  )}
+                />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </CollapsibleTrigger>
+      <CollapsibleContent>
+        <div className="mt-1 mx-1">
+          <Card className="border-primary/10 bg-muted/30">
+            <CardContent className="p-4 text-sm space-y-3">
               <DetailRow
-                icon={CrossCircledIcon}
-                label="Erreur"
-                value={result.error}
-                error
+                icon={GlobeIcon}
+                label="Domaine"
+                value={`https://${result.domain}`}
+                href={`https://${result.domain}`}
               />
-            )}
 
-            {!result.error && (
-              <>
-                {result.registrar && (
-                  <DetailRow
-                    icon={PersonIcon}
-                    label="Registrar"
-                    value={result.registrar}
-                  />
-                )}
-                {result.creationDate && (
-                  <DetailRow
-                    icon={CalendarIcon}
-                    label="Créé le"
-                    value={new Date(result.creationDate).toLocaleDateString()}
-                  />
-                )}
-                {result.expirationDate && (
-                  <DetailRow
-                    icon={CalendarIcon}
-                    label="Expire le"
-                    value={new Date(result.expirationDate).toLocaleDateString()}
-                  />
-                )}
-                {result.hasWebServer && (
-                  <DetailRow
-                    icon={GlobeIcon}
-                    label="Statut"
-                    value="Site web actif"
-                  />
-                )}
-              </>
-            )}
-          </div>
-        </CollapsibleContent>
-      </div>
+              {result.error && (
+                <DetailRow
+                  icon={CrossCircledIcon}
+                  label="Erreur"
+                  value={result.error}
+                  error
+                />
+              )}
+
+              {!result.error && (
+                <>
+                  {result.registrar && (
+                    <DetailRow
+                      icon={PersonIcon}
+                      label="Registrar"
+                      value={result.registrar}
+                    />
+                  )}
+                  {result.creationDate && (
+                    <DetailRow
+                      icon={CalendarIcon}
+                      label="Créé le"
+                      value={new Date(result.creationDate).toLocaleDateString()}
+                    />
+                  )}
+                  {result.expirationDate && (
+                    <DetailRow
+                      icon={CalendarIcon}
+                      label="Expire le"
+                      value={new Date(
+                        result.expirationDate
+                      ).toLocaleDateString()}
+                    />
+                  )}
+                  {result.hasWebServer && (
+                    <DetailRow
+                      icon={GlobeIcon}
+                      label="Statut"
+                      value="Site web actif"
+                    />
+                  )}
+                </>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      </CollapsibleContent>
     </Collapsible>
   );
 };
@@ -178,11 +233,11 @@ export const DomainHistory = ({ history, onClear, onSelect }: Props) => {
   if (history.length === 0) return null;
 
   return (
-    <div className="mt-8">
-      <div className="flex items-center justify-between mb-4">
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <div>
-          <h2 className="text-lg font-semibold">Historique des recherches</h2>
-          <p className="text-sm text-gray-500">
+          <CardTitle className="text-lg">Historique des recherches</CardTitle>
+          <p className="text-sm text-muted-foreground mt-1">
             {history.length} domaine{history.length > 1 ? "s" : ""} vérifié
             {history.length > 1 ? "s" : ""}
           </p>
@@ -191,13 +246,13 @@ export const DomainHistory = ({ history, onClear, onSelect }: Props) => {
           variant="ghost"
           size="sm"
           onClick={onClear}
-          className="text-red-500 hover:text-red-700"
+          className="text-destructive hover:text-destructive/90 hover:bg-destructive/10"
         >
           <TrashIcon className="h-4 w-4 mr-2" />
-          Effacer l&apos;historique
+          Effacer
         </Button>
-      </div>
-      <div className="space-y-2">
+      </CardHeader>
+      <CardContent className="pt-0 space-y-2">
         {history.map((result) => (
           <HistoryItem
             key={result.domain}
@@ -205,7 +260,7 @@ export const DomainHistory = ({ history, onClear, onSelect }: Props) => {
             onSelect={onSelect}
           />
         ))}
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 };

@@ -98,9 +98,9 @@ export async function checkDomainAvailability(
       }
     }
 
-    const isAvailable = isAvailableWhois && !webServerStatus;
+    const isAvailable = Boolean(isAvailableWhois && !webServerStatus);
 
-    const result = {
+    const result: DomainCheckResult = {
       domain,
       isAvailable,
       registrar: whoisData.registrar || undefined,
